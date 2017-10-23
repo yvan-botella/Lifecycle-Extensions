@@ -1,0 +1,2 @@
+include ':library', ':lifecycle-callback'
+project(':lifecycle-callback').projectDir = new File('Lifecycle-Callback/library')

@@ -1,0 +1,42 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    ext.compile_sdk_version = 26
+    ext.kotlin_version = '1.1.51'
+    ext.android_support_version = "$compile_sdk_version.1.0"
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        maven {
+            url 'https://maven.google.com'
+        }
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+/**
+ *  http://tools.android.com/tech-docs/new-build-system/user-guide
+ */
+ext.formatLibraryVariantOutput = { parent, defaultConfig, variant ->
+    variant.outputs.each { output ->
+        output.outputFile = new File(output.outputFile.parent, "${parent.name}-${defaultConfig.versionName}.${defaultConfig.versionCode}-${variant.name}.aar")
+    }
+}
