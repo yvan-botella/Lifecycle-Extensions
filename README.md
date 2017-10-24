@@ -78,9 +78,8 @@ SharedElement could be between:
 
 ### AutoLayout
 > Automaticly load layout based on ClassName
-> `MainActivity` **~>** `activity_main`
-> `SecondDetailFragment` **~>** `fragment_second_detail`
-
+- `MainActivity` **~>** `activity_main`
+- `SecondDetailFragment` **~>** `fragment_second_detail`
 
 
 
