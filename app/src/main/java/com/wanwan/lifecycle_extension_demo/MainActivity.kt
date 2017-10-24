@@ -1,8 +1,7 @@
 package com.wanwan.lifecycle_extension_demo
 
-import com.keyrus.lifecycle_extension_demo.R
-import com.keyrus.lifecycle_extension_demo.databinding.ActivityMainBinding
 import com.wanwan.autolayout.AutoLayout
+import com.wanwan.lifecycle_extension_demo.databinding.ActivityMainBinding
 import com.wanwan.navigable.Navigable
 
 /**

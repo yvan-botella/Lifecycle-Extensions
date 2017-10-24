@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.keyrus.lifecycle_extension_demo", appContext.getPackageName());
+        assertEquals("com.wanwan.lifecycle_extension_demo", appContext.getPackageName());
     }
 }
