@@ -1,9 +1,9 @@
-package com.keyrus.lifecycle_extension_demo
+package com.wanwan.lifecycle_extension_demo
 
 import android.view.View
 import com.wanwan.lifecycle_callback.LifecycleFragment
-import com.wanwan.lifecycle_callback.demo.protocol.Navigable
-import com.wanwan.sharedtransitiontest.ShareableElement
+import com.wanwan.navigable.Navigable
+import com.wanwan.navigable.ShareableElement
 
 /**
  * Created by yvan.botella on 23/10/2017.

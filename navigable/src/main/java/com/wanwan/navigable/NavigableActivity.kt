@@ -8,11 +8,11 @@ import android.content.Intent
 import android.support.v4.app.FragmentActivity
 import com.wanwan.lifecycle_callback.ActivityLifecycleRegister
 import com.wanwan.lifecycle_callback.callback.ActivityLifecycleCallbacks
-import com.wanwan.lifecycle_callback.demo.protocol.Navigable
 import com.wanwan.lifecycle_callback.protocol.ActivityLifecycleImpl
 import com.wanwan.lifecycle_callback.protocol.TAG
-import com.wanwan.sharedtransitiontest.ShareableElement
-import com.wanwan.sharedtransitiontest.SharedElementTransaction
+import com.wanwan.navigable.Navigable
+import com.wanwan.navigable.ShareableElement
+import com.wanwan.navigable.SharedElementTransaction
 
 /**
  * Created by yvan.botella on 12/10/2017.

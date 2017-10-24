@@ -1,4 +1,4 @@
-package com.keyrus.lifecycle_extension_demo
+package com.wanwan.lifecycle_extension_demo
 
 import android.databinding.ViewDataBinding
 import android.view.View
@@ -13,8 +13,7 @@ import com.wanwan.navigable.Navigable
  */
 open abstract class ActivityNavigable<T: ViewDataBinding>: LifecycleActivity(), NavigableActivity, Bindable<T> {
 
-    override fun registerActivityCallback() {
-        AutoLayout.register(this)
+    override fun registerLifecycleCallback() {
         Bindable.register(this)
         NavigableActivity.register(this)
     }

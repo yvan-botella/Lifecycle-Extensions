@@ -1,4 +1,4 @@
-package com.keyrus.lifecycle_extension_demo;
+package com.wanwan.lifecycle_extension_demo;
 
 import org.junit.Test;
 

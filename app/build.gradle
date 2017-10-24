@@ -5,15 +5,19 @@ android {
     buildToolsVersion "26.0.2"
 
     defaultConfig {
-        applicationId "com.keyrus.lifecycle_extension_demo"
+        applicationId "com.wanwan.lifecycle_extension_demo"
         minSdkVersion 19
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
+
+    dataBinding {
+        enabled true
+    }
+
     buildTypes {
         release {
             minifyEnabled false
