@@ -58,8 +58,7 @@ companion object {
 ### ShareableElement
 
 > `NavigableActivity ` can deals with **SharedElements**
-
-> Just implement `ShareableElement` in your `Fragment` and it's work !
+> Just implement `ShareableElement` in your `Fragment` and it's work !
 
 ```kotlin
 class FirstFragment: Fragment(), ShareableElement {
@@ -78,8 +77,8 @@ SharedElement could be between:
 
 ### AutoLayout
 > Automaticly load layout based on ClassName
-- `MainActivity` **~>** `activity_main`
-- `SecondDetailFragment` **~>** `fragment_second_detail`
+- `MainActivity` **~>** `activity_main`
+- `SecondDetailFragment` **~>** `fragment_second_detail`
 
 
 
@@ -95,7 +94,7 @@ class FirstFragment: LifecycleFragment, AutoLayout {
 ```
 
 ***
-> Or override defined `layoutId`
+> Or override defined `layoutId`
 
 ```kotlin
 override val layoutId: Int = R.layout.activity_custom_main
