@@ -63,8 +63,11 @@ companion object {
 ```kotlin
 class FirstFragment: Fragment(), ShareableElement {
 
-	override val sharedElements: Array<View?>? 
-		get() = arrayOf(thumbnailImageView, titleTextView, ...)
+	override val sharedElements: ArrayList<View?>? 
+		get() = arrayListOf(thumbnailImageView, titleTextView, ...)
+		
+	override val sharedElementEnterTransitionId = ShareableElement.Transtion.NONE R.transition.custom_transition
+	override val sharedElementReturnTransitionId = R.transition.custom_transition
 }
 ```
 
@@ -74,6 +77,17 @@ SharedElement could be between:
 - `Fragment1` (Activity1) **~>** `Fragment2` (Activity2) 
 - `Fragment1` (Activity) **~>** `Activity` & `Fragment2` (Activity) 
 
+Shared Transition Field:
+`sharedElementEnterTransitionId ` and `sharedElementReturnTransitionId `
+
+> - Not override **~>** default transition
+> - 0 **~>** No Transition
+> - Value **~>** Transition
+> - Null **~>** `NavigableActivity` Transition / No Transition
+
+> default transition can be also override
+`Navigable`.defautlSharedElementEnterTransitionId = 0
+`Navigable`.defautlSharedElementReturnTransitionId = 0
 
 ### AutoLayout
 > Automaticly load layout based on ClassName
@@ -93,8 +107,7 @@ class FirstFragment: LifecycleFragment, AutoLayout {
 }
 ```
 
-***
-> Or override defined `layoutId`
+-> Or override defined `layoutId`
 
 ```kotlin
 override val layoutId: Int = R.layout.activity_custom_main
