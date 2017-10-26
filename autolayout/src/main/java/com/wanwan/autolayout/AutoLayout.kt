@@ -1,7 +1,11 @@
 package com.wanwan.autolayout
 
 import android.app.Activity
+import android.app.Fragment
+import android.content.Context
+import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,11 +25,20 @@ interface AutoLayout {
         get() = resolveLayout()
 
     private fun resolveLayout(): Int {
+        val layoutName = this::class.java.simpleName.toLowerCase()
+        var ctx: Context? = null
+
         if (this is Activity) {
-            val layoutName = this::class.java.simpleName.toLowerCase()
-            return resources.getIdentifier(layoutName, "layout", packageName)
+            ctx = this
+        } else if (this is Fragment) {
+            ctx = activity
+        } else if (this is android.support.v4.app.Fragment) {
+            ctx = activity
+        } else if (this is View) {
+            ctx = context
         }
-        return 0
+
+        return ctx?.resources!!.getIdentifier(layoutName, "layout", ctx?.packageName)
     }
 
     companion object: ActivityLifecycleRegister, FragmentLifecycleRegister {
@@ -38,18 +51,27 @@ interface AutoLayout {
         }
 
         private val fragmentLifecycle = object : FragmentLifecycleCallbacks {
-            override fun onCreateView(fragment: Any, result: View?, inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+            override fun onCreateView(fragment: Any, backResult: View?, inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
                 if (fragment is AutoLayout) {
-                    return inflater?.inflate(fragment.layoutId, container, false)
+                    try {
+                        return inflater?.inflate(fragment.layoutId, container, false)
+                    } catch (ex: Resources.NotFoundException) {
+                        throw Resources.NotFoundException("Layout ID: ${fragment.layoutId}")
+                    }
                 }
-                return result
+                return backResult
             }
         }
 
         private val activityLifecycle = object : ActivityLifecycleCallbacks {
             override fun onCreate(activity: Activity, savedInstanceState: Bundle?) {
                 if (activity is AutoLayout) {
-                    activity.setContentView(activity.layoutId)
+                    try {
+                        activity.setContentView(activity.layoutId)
+                    } catch (ex: Resources.NotFoundException) {
+                        throw Resources.NotFoundException("Layout ID: ${activity.layoutId}")
+                    }
+
                 }
             }
         }

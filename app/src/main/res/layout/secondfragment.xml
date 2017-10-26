@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <import type="android.view.View"/>
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/layout"
+            android:transitionName="layout_transition"
+            android:orientation="vertical"
+            android:weightSum="1"
+            android:background="@android:color/holo_orange_dark"
+            android:gravity="bottom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </LinearLayout>
+        <TextView
+            android:layout_alignParentTop="true"
+            android:id="@+id/title"
+            android:transitionName="title_transition"
+            android:text="Second Fragment"
+            android:textColor="@android:color/white"
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_centerInParent="true"
+            android:transitionName="logo_transition"
+            android:src="@mipmap/ic_launcher"
+            android:layout_width="150dp"
+            android:layout_height="150dp" />
+
+    </RelativeLayout>
+</layout>

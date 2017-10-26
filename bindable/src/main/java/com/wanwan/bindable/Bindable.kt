@@ -18,9 +18,13 @@ import com.wanwan.lifecycle_callback.protocol.TAG
 /**
  * Created by yvan.botella on 12/10/2017.
  */
-interface Bindable<T: ViewDataBinding>: TAG {
+interface Bindable<out T: ViewDataBinding>: TAG {
 
-    var binding: T?
+    val layoutId: Int
+    val binding: T?
+        get() = _binding as? T
+
+    var _binding: ViewDataBinding?
 
     companion object : ActivityLifecycleRegister, FragmentLifecycleRegister {
 
@@ -34,19 +38,37 @@ interface Bindable<T: ViewDataBinding>: TAG {
 
         private val activityLifecycle = object : ActivityLifecycleCallbacks {
             override fun onCreate(activity: Activity, savedInstanceState: Bundle?) {
-                val viewRoot = activity.findViewById<View>(android.R.id.content)
+                val viewRoot = activity.findViewById<ViewGroup>(android.R.id.content)
 
                 if (activity is Bindable<*>) {
-                    activity.binding = DataBindingUtil.bind(viewRoot)
+                    try {
+                        activity._binding = DataBindingUtil.bind(viewRoot)
+                    } catch (ex: IllegalArgumentException) {
+                        try {
+                            activity._binding = DataBindingUtil.bind(viewRoot.getChildAt(0))
+                        } catch (ex: IllegalArgumentException) {
+                            activity._binding = DataBindingUtil.setContentView(activity, activity.layoutId)
+                        }
+                    }
+                } else {
                 }
             }
         }
         private val fragmentLifecycle = object : FragmentLifecycleCallbacks {
-            override fun onCreateView(fragment: Any, result: View?, inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+            override fun onCreateView(fragment: Any, backResult: View?, inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
                 if (fragment is Bindable<*>) {
-                    fragment.binding = DataBindingUtil.bind(result)
+                    if (backResult != null) {
+                        try {
+                            fragment._binding = DataBindingUtil.bind(backResult)
+                        } catch (ex: IllegalArgumentException) {
+                            fragment._binding = DataBindingUtil.inflate(inflater, fragment.layoutId, container, false)
+                        }
+                    } else {
+                        fragment._binding = DataBindingUtil.inflate(inflater, fragment.layoutId, container, false)
+                    }
+                } else {
                 }
-                return result
+                return backResult
             }
         }
     }

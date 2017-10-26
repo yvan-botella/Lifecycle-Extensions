@@ -2,13 +2,17 @@
 
 buildscript {
     ext.compile_sdk_version = 26
-    ext.kotlin_version = '1.1.51'
+    ext.gradle_version = '2.3.3'
+    ext.kotlin_version = '1.2.0-beta-88'
     ext.android_support_version = "$compile_sdk_version.1.0"
     repositories {
         jcenter()
+        maven {
+            url 'http://dl.bintray.com/kotlin/kotlin-eap-1.2'
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath "com.android.tools.build:gradle:$gradle_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -19,6 +23,9 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        maven {
+            url 'http://dl.bintray.com/kotlin/kotlin-eap-1.2'
+        }
         maven {
             url 'https://maven.google.com'
         }
@@ -35,7 +42,7 @@ task clean(type: Delete) {
 /**
  *  http://tools.android.com/tech-docs/new-build-system/user-guide
  */
-ext.formatLibraryVariantOutput = { parent, defaultConfig, variant ->
+ext.formatVariantOutput = { parent, defaultConfig, variant ->
     variant.outputs.each { output ->
         output.outputFile = new File(output.outputFile.parent, "${parent.name}-${defaultConfig.versionName}.${defaultConfig.versionCode}-${variant.name}.aar")
     }

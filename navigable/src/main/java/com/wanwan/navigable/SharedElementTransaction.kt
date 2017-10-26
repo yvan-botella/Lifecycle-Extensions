@@ -7,28 +7,26 @@ import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.util.Pair
 import android.support.v4.view.ViewCompat
+import android.util.Log
 import android.view.View
 import com.wanwan.lifecycle_callback.protocol.TAG
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Created by yvan.botella on 22/10/2017.
  */
 class SharedElementTransaction: TAG {
 
-    var token: String
-    var sharedElements: Array<Pair<View, String>?>
+    var token = UUID.randomUUID().toString()
+    var sharedElements = ArrayList<Pair<View?, String>>()
 
     init {
-        token = UUID.randomUUID().toString()
-    }
-
-    private constructor(size: Int) {
-        sharedElements = arrayOfNulls<Pair<View, String>>(size)
+        transactions.put(token, this)
     }
 
     fun toBundle(activity: Activity?): Bundle {
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, *sharedElements)
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, *sharedElements.toTypedArray())
 
         val bundle = options.toBundle()
         bundle.putString(SharedElementTransaction.TOKEN, token)
@@ -37,71 +35,65 @@ class SharedElementTransaction: TAG {
     }
 
     fun setupTransaction(transaction: FragmentTransaction) {
-        for (sharedElement in sharedElements) {
-            transaction.addSharedElement(sharedElement?.first, sharedElement?.second)
+        sharedElements.forEach { sharedElement->
+            transaction.addSharedElement(sharedElement.first, sharedElement.second)
         }
         transactions.remove(token)
     }
 
-    companion object {
+    companion object: TAG {
 
-        internal val TOKEN = SharedElementTransaction::class.java!!.getName() + ".TOKEN"
-
-        private val transactions = HashMap<String, SharedElementTransaction>()
+        internal val TOKEN = SharedElementTransaction::class.java.name + ".TOKEN"
+        val transactions = HashMap<String, SharedElementTransaction>()
 
         fun newTransaction(shareable: ShareableElement): SharedElementTransaction? {
-            if (shareable.sharedElements != null) {
-                return SharedElementTransaction.newTransaction(shareable.sharedElements!!)
-            } else if (shareable.sharedElementsPair != null) {
-                return SharedElementTransaction.newTransaction(shareable.sharedElementsPair!!)
+            if (shareable.sharedElements.isNotEmpty()) {
+                return SharedElementTransaction.newTransactionView(shareable.sharedElements)
+            } else if (shareable.sharedElementsPair.isNotEmpty()) {
+                return SharedElementTransaction.newTransactionPair(shareable.sharedElementsPair)
+            } else {
+                return null
             }
-            return null
         }
 
-        fun newTransaction(views: Array<View>): SharedElementTransaction {
-            val transaction = SharedElementTransaction(views.size)
+        private fun newTransactionView(views: ArrayList<View?>): SharedElementTransaction {
+            val transaction = SharedElementTransaction()
 
-            var index = 0
-            for (view in views) {
-                transaction.sharedElements[index] = Pair(view, ViewCompat.getTransitionName(view))
-                ++index
-            }
-
-            return transaction
-        }
-
-        fun newTransaction(pairs: Array<Pair<View, String>>): SharedElementTransaction {
-            val transaction = SharedElementTransaction(pairs.size)
-
-            var index = 0
-            for (pair in pairs) {
-                ViewCompat.setTransitionName(pair.first, pair.second)
-                transaction.sharedElements[index] = Pair(pair.first, pair.second)
-                ++index
+            views.forEach { view ->
+                if (view != null) {
+                    transaction.sharedElements.add(Pair(view, ViewCompat.getTransitionName(view)))
+                }
             }
 
             return transaction
         }
 
-        operator fun get(token: String): SharedElementTransaction? {
-            return transactions[token]
+        private fun newTransactionPair(pairs: ArrayList<Pair<View?, String>>): SharedElementTransaction {
+            val transaction = SharedElementTransaction()
+            pairs.forEach { pair ->
+                if (pair.first != null) {
+                    ViewCompat.setTransitionName(pair.first, pair.second)
+                    transaction.sharedElements.add(pair)
+                }
+            }
+
+            return transaction
         }
 
         fun fromBundle(bundle: Bundle?): SharedElementTransaction? {
             if (bundle != null && bundle.containsKey(TOKEN)) {
                 val token = bundle.getString(TOKEN)
-                return get(token)
-            }
 
+                transactions.keys.forEach { key ->
+                    Log.d(TAG, key)
+                }
+
+                if (transactions.containsKey(token))
+                    return transactions[token]
+            }
             return null
         }
 
-        fun fromIntent(intent: Intent?): SharedElementTransaction? {
-            if (intent != null) {
-                return fromBundle(intent.extras)
-            }
-
-            return null
-        }
+        fun fromIntent(intent: Intent?) = fromBundle(intent?.extras)
     }
 }

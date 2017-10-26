@@ -6,7 +6,7 @@
 
     <LinearLayout
         android:orientation="vertical"
-        android:background="@android:color/holo_green_dark"
+        android:background="@android:color/holo_red_dark"
         android:weightSum="1"
         android:gravity="bottom"
         android:layout_width="match_parent"

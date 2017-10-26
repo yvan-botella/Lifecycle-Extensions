@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.util.Pair
+import android.transition.Transition
 import android.view.View
 import com.wanwan.lifecycle_callback.ActivityLifecycleRegister
 import com.wanwan.lifecycle_callback.callback.ActivityLifecycleCallbacks
@@ -18,12 +19,26 @@ import com.wanwan.lifecycle_extensions.kotlin.navigable.NavigableActivity
  */
 interface ShareableElement {
 
-    val sharedElements: Array<View>?
-        get() = null
-    val sharedElementsPair: Array<Pair<View, String>>?
-        get() = null
+    val sharedElements: ArrayList<View?>
+        get() = ArrayList()
+    val sharedElementsPair: ArrayList<Pair<View?, String>>
+        get() = ArrayList()
+
+//    val enterTransitionId: Int
+//        get() = ShareableElement.Companion.enterTransitionId
+//    val exitTransitionId: Int
+//        get() = ShareableElement.Companion.exitTransitionId
+
+    val sharedElementEnterTransitionId: Int?
+        get() = ShareableElement.Companion.sharedElementEnterTransitionId
+    val sharedElementReturnTransitionId: Int?
+        get() = ShareableElement.Companion.sharedElementReturnTransitionId
 
     companion object {
-        val EXTRA_TOKEN = "${ShareableElement::class.java.`package`}.intent.EXTRA_TOKEN"
+        var sharedElementEnterTransitionId = R.transition.default_shared_element_transition
+        var sharedElementReturnTransitionId = R.transition.default_shared_element_transition
+
+//        var exitTransitionId = R.transition.default_shared_element_transition
+//        var enterTransitionId = R.transition.default_shared_element_transition
     }
 }

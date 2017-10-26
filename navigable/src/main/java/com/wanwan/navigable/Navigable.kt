@@ -18,23 +18,34 @@ interface Navigable: TAG {
 
     fun navigate(clearBackStack: Boolean = false, args: Bundle? = null) {
         val intent = Intent(currentActivity, activityAffinity)
-        var bundle: Bundle? = null
+        val options = setupOptionsBundle()
+        val extras = setupExtrasBundle()
 
-        if (currentActivity is NavigableActivity && (currentActivity as NavigableActivity).currentFragment is ShareableElement) {
-            bundle = SharedElementTransaction.newTransaction((currentActivity as NavigableActivity).currentFragment as ShareableElement)
-                    ?.toBundle(currentActivity)
-        }
+        setupClearBackStack(clearBackStack, extras)
 
+        startActivity(intent, extras, options)
+        finishActivityIfNeeded(extras)
+    }
+
+    private fun startActivity(intent: Intent, extras: Bundle, options: Bundle?) {
         val previousActivity = currentActivity
 
-        if (currentActivity != null && currentActivity?.isFinishing == false) {
-            currentActivity?.startActivity(intent, bundle)
+        intent.putExtras(extras)
+        if (previousActivity != null) {
+            if (previousActivity.javaClass == activityAffinity) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
+            previousActivity.startActivity(intent, options)
         } else {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            application?.startActivity(intent, bundle)
+            application?.startActivity(intent, extras)
         }
+    }
 
-        if (clearBackStack) {
+    private fun finishActivityIfNeeded(extras: Bundle) {
+        val previousActivity = currentActivity
+
+        if (extras.containsKey(EXTRA_CLEAR_BACKSTACK)) {
             if (previousActivity is FragmentActivity) {
                 previousActivity.supportFinishAfterTransition()
             } else {
@@ -43,6 +54,32 @@ interface Navigable: TAG {
         }
     }
 
+    private fun setupClearBackStack(clearBackStack: Boolean, extras: Bundle) {
+        if (clearBackStack) {
+            extras.putBoolean(EXTRA_CLEAR_BACKSTACK, clearBackStack)
+        }
+    }
+
+    private fun setupExtrasBundle(): Bundle {
+        var extra = Bundle()
+        extra.putSerializable(EXTRA_FRAGMENT_CLASS, fragmentClass)
+        return extra
+    }
+
+    private fun setupOptionsBundle(): Bundle? {
+        var optionBundle: Bundle? = null
+
+        val previousActivity = currentActivity
+        val previousFragment = (previousActivity as? NavigableActivity)?.currentFragment
+
+        if (previousActivity is NavigableActivity && previousFragment is ShareableElement) {
+            optionBundle = SharedElementTransaction.newTransaction(previousFragment)?.toBundle(previousActivity)
+            if (optionBundle != null) {
+                return optionBundle
+            }
+        }
+        return null
+    }
 
     companion object {
         val EXTRA_FRAGMENT_CLASS = "${Navigable::class.java.`package`}.intent.EXTRA_FRAGMENT_CLASS"
@@ -57,9 +94,15 @@ interface Navigable: TAG {
 
             application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
                 override fun onActivityPaused(activity: Activity?) {}
-                override fun onActivityResumed(activity: Activity?) {}
-                override fun onActivityStarted(v: Activity?) {}
-                override fun onActivityDestroyed(activity: Activity?) {}
+                override fun onActivityResumed(activity: Activity?) {
+                    currentActivity = activity
+                }
+                override fun onActivityStarted(activity: Activity?) {
+                    currentActivity = activity
+                }
+                override fun onActivityDestroyed(activity: Activity?) {
+
+                }
                 override fun onActivitySaveInstanceState(activity: Activity?, savedInstanceState: Bundle?) {}
                 override fun onActivityStopped(activity: Activity?) {}
                 override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
