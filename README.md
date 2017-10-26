@@ -66,7 +66,7 @@ class FirstFragment: Fragment(), ShareableElement {
 	override val sharedElements: ArrayList<View?>? 
 		get() = arrayListOf(thumbnailImageView, titleTextView, ...)
 		
-	override val sharedElementEnterTransitionId = ShareableElement.Transtion.NONE R.transition.custom_transition
+	override val sharedElementEnterTransitionId = R.transition.custom_transition
 	override val sharedElementReturnTransitionId = R.transition.custom_transition
 }
 ```
