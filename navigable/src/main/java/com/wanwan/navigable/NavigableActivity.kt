@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.transition.Transition
 import android.transition.TransitionInflater
+import android.view.Window
 import com.wanwan.lifecycle_callback.ActivityLifecycleRegister
 import com.wanwan.lifecycle_callback.callback.ActivityLifecycleCallbacks
 import com.wanwan.lifecycle_callback.protocol.ActivityLifecycleImpl
@@ -24,10 +25,11 @@ import com.wanwan.navigable.SharedElementTransaction
  */
 interface NavigableActivity: TAG, ShareableElement {
 
-    val navigableContainerId: Int
+    val navigableContainerId: Int?
+        get() = null
 
     private val _navigableContainerId: Int
-        get() = if (navigableContainerId == 0) android.R.id.content else navigableContainerId
+        get() = Companion.navigableContainerId
 
     val currentFragment: Any?
         get() {
@@ -39,13 +41,15 @@ interface NavigableActivity: TAG, ShareableElement {
         }
 
     companion object : ActivityLifecycleRegister {
+        var navigableContainerId = android.R.id.content
 
         override fun register(activity: ActivityLifecycleImpl) {
             activity.registerActivityCallback(lifecycle)
         }
 
-        val lifecycle = object : ActivityLifecycleCallbacks {
+        private val lifecycle = object : ActivityLifecycleCallbacks {
             override fun onCreate(activity: Activity, savedInstanceState: Bundle?) {
+
                 if (activity.intent?.hasExtra(Navigable.EXTRA_FRAGMENT_CLASS) == true) {
                     onHandleNavigableIntent(activity, activity.intent)
                 }
@@ -76,8 +80,12 @@ interface NavigableActivity: TAG, ShareableElement {
                         val fragment = fragmentClass.newInstance()
 
                         if (fragment is Fragment || fragment is android.support.v4.app.Fragment) {
+
                             if (fragment is ShareableElement && fragment.hasAsyncSharedElement) {
-                                activity.postponeEnterTransition()
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                    activity.window.requestFeature(Window.FEATURE_CONTENT_TRANSITIONS)
+                                    activity.postponeEnterTransition()
+                                }
                             }
                             activity.onNavigate(intent, fragment)
                         }

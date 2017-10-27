@@ -59,7 +59,7 @@ interface Bindable<T: ViewDataBinding>: TAG {
             }
         }
         private val fragmentLifecycle = object : FragmentLifecycleCallbacks {
-            override fun onCreateView(fragment: Any, backResult: View?, inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+            override fun onCreateView(fragment: Any, backResult: View?, inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
                 if (fragment is Bindable<*>) {
                     if (backResult != null) {
                         try {

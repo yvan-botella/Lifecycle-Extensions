@@ -38,7 +38,7 @@ interface AutoLayout {
             ctx = context
         }
 
-        return ctx?.resources!!.getIdentifier(layoutName, "layout", ctx?.packageName)
+        return ctx?.resources!!.getIdentifier(layoutName, "layout", ctx.packageName)
     }
 
     companion object: ActivityLifecycleRegister, FragmentLifecycleRegister {
@@ -51,7 +51,7 @@ interface AutoLayout {
         }
 
         private val fragmentLifecycle = object : FragmentLifecycleCallbacks {
-            override fun onCreateView(fragment: Any, backResult: View?, inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+            override fun onCreateView(fragment: Any, backResult: View?, inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
                 if (fragment is AutoLayout) {
                     try {
                         return inflater?.inflate(fragment.layoutId, container, false)

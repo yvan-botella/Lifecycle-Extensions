@@ -7,43 +7,45 @@ import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import com.wanwan.lifecycle_callback.protocol.TAG
 import com.wanwan.lifecycle_extensions.kotlin.navigable.NavigableActivity
+import java.lang.ref.WeakReference
 
 /**
  * Created by yvan.botella on 12/10/2017.
  */
 interface Navigable: TAG {
 
-    val activityAffinity: Class<out Activity>
+    val activityAffinity: Class<out Any>
     val fragmentClass: Class<out Any>
 
     fun navigate(clearBackStack: Boolean = false, args: Bundle? = null) {
-        val intent = Intent(currentActivity, activityAffinity)
+        val intent = Intent(applicationRef?.get(), activityAffinity)
         val options = setupOptionsBundle()
         val extras = setupExtrasBundle()
 
         setupClearBackStack(clearBackStack, extras)
 
         startActivity(intent, extras, options)
+
         finishActivityIfNeeded(extras)
     }
 
     private fun startActivity(intent: Intent, extras: Bundle, options: Bundle?) {
-        val previousActivity = currentActivity
+        val previousActivity = currentActivityRef
 
         intent.putExtras(extras)
         if (previousActivity != null) {
             if (previousActivity.javaClass == activityAffinity) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
             }
-            previousActivity.startActivity(intent, options)
+            previousActivity.get()?.startActivity(intent, options)
         } else {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            application?.startActivity(intent, extras)
+            applicationRef?.get()?.startActivity(intent, extras)
         }
     }
 
     private fun finishActivityIfNeeded(extras: Bundle) {
-        val previousActivity = currentActivity
+        val previousActivity = currentActivityRef?.get()
 
         if (extras.containsKey(EXTRA_CLEAR_BACKSTACK)) {
             previousActivity?.setResult(Activity.RESULT_OK)
@@ -71,44 +73,40 @@ interface Navigable: TAG {
     private fun setupOptionsBundle(): Bundle? {
         var optionBundle: Bundle? = null
 
-        val previousActivity = currentActivity
+        val previousActivity = currentActivityRef?.get()
         val previousFragment = (previousActivity as? NavigableActivity)?.currentFragment
 
         if (previousActivity is NavigableActivity && previousFragment is ShareableElement) {
             optionBundle = SharedElementTransaction.newTransaction(previousFragment)?.toBundle(previousActivity)
-            if (optionBundle != null) {
-                return optionBundle
-            }
         }
-        return null
+        return optionBundle
     }
 
     companion object {
         val EXTRA_FRAGMENT_CLASS = "${Navigable::class.java.`package`}.intent.EXTRA_FRAGMENT_CLASS"
         val EXTRA_CLEAR_BACKSTACK = "${Navigable::class.java.`package`}.intent.EXTRA_CLEAR_BACKSTACK"
 
-        private var application: Application? = null
-        var currentActivity: Activity? = null
-            private set
+        private var applicationRef: WeakReference<Application>? = null
+        private var currentActivityRef: WeakReference<Activity>? = null
 
         fun init(application: Application) {
-            this.application = application
+            this.applicationRef = WeakReference(application)
 
             application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
-                override fun onActivityPaused(activity: Activity?) {}
-                override fun onActivityResumed(activity: Activity?) {
-                    currentActivity = activity
+                override fun onActivityPaused(activity: Activity) {}
+                override fun onActivityResumed(activity: Activity) {
+                    currentActivityRef = WeakReference(activity)
                 }
-                override fun onActivityStarted(activity: Activity?) {
-                    currentActivity = activity
+                override fun onActivityStarted(activity: Activity) {
+                    currentActivityRef = WeakReference(activity)
                 }
-                override fun onActivityDestroyed(activity: Activity?) {
+                override fun onActivityDestroyed(activity: Activity) {
 
                 }
-                override fun onActivitySaveInstanceState(activity: Activity?, savedInstanceState: Bundle?) {}
-                override fun onActivityStopped(activity: Activity?) {}
-                override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
-                    currentActivity = activity
+                override fun onActivitySaveInstanceState(activity: Activity, savedInstanceState: Bundle) {}
+                override fun onActivityStopped(activity: Activity) {}
+                override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle) {
+                    currentActivityRef = WeakReference(activity)
                 }
             })
         }

@@ -25,13 +25,16 @@ class SharedElementTransaction: TAG {
         transactions.put(token, this)
     }
 
-    fun toBundle(activity: Activity?): Bundle {
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, *sharedElements.toTypedArray())
+    fun toBundle(activity: Activity?): Bundle? {
+        if (activity != null) {
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, *sharedElements.toTypedArray())
 
-        val bundle = options.toBundle()
-        bundle.putString(SharedElementTransaction.TOKEN, token)
+            val bundle = options.toBundle()
+            bundle?.putString(SharedElementTransaction.TOKEN, token)
 
-        return bundle
+            return bundle
+        }
+        return null
     }
 
     fun setupTransaction(transaction: FragmentTransaction) {

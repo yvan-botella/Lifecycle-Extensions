@@ -15,13 +15,13 @@ class FirstFragment : BaseFragment<FirstfragmentBinding>() {
         get() = arrayListOf(binding?.title, binding?.layout, binding?.logo)
     //endregion ShareableElement
 
-    val title = "FirstFragment"
 
     //region Fragment Lifecycle
     override fun onBindDataContext() {
         binding?.context = this
     }
     //endregion Fragment Lifecycle
+
 
     //region Static Navigable
     companion object: Navigable {
