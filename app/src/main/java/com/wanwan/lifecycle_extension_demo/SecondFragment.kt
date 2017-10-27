@@ -17,24 +17,34 @@ import com.wanwan.navigable.ShareableElement
 /**
  * Created by yvan.botella on 23/10/2017.
  */
-class SecondFragment : LifecycleFragmentSupport(), AutoLayout, ShareableElement, Bindable<SecondfragmentBinding> {
+class SecondFragment : BaseFragment<SecondfragmentBinding>() {
 
-    override var _binding: ViewDataBinding? = null
-
+    //region ShareableElement
     override val sharedElements: ArrayList<View?>
         get() = arrayListOf(binding?.title, binding?.layout, binding?.logo)
+    //endregion
 
-    override val layoutId: Int
-        get() = super.layoutId
+    //region Fragment Lifecycle
+    override fun onBindDataContext() {
+        binding?.context = this
+//        binding?.setViewModel(ViewModelLocator.of(MainViewModel::class.java))
+    }
 
+    //endregion Fragment Lifecycle
 
+    //region Static Navigable
     companion object: Navigable {
         override val activityAffinity = DetailActivity::class.java
         override val fragmentClass = SecondFragment::class.java
-    }
 
-    override fun registerLifecycleCallback() {
-        AutoLayout.register(this)
-        Bindable.register(this)
+        @JvmStatic
+        fun navigateTo() {
+            super.navigate(false, null)
+        }
+        @JvmStatic
+        fun navigateFrom() {
+            super.navigate(true, null)
+        }
     }
+    //endregion Static Navigable
 }

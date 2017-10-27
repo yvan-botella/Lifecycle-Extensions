@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
+        <variable
+            name="context" type="com.wanwan.lifecycle_extension_demo.SecondFragment"/>
         <import type="android.view.View"/>
+        <import type="com.wanwan.lifecycle_extension_demo.FirstFragment"/>
     </data>
 
     <RelativeLayout
+        android:onClick="@{ view -> (FirstFragment.navigateTo())}"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -22,7 +26,7 @@
             android:layout_alignParentTop="true"
             android:id="@+id/title"
             android:transitionName="title_transition"
-            android:text="Second Fragment"
+            android:text="@{context.getClass().simpleName}"
             android:textColor="@android:color/white"
             android:padding="16dp"
             android:layout_width="match_parent"

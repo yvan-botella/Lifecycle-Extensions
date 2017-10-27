@@ -11,5 +11,8 @@ class App: MultiDexApplication() {
 
     init {
         Navigable.init(this)
+
+        ShareableElement.sharedElementEnterTransitionId = 0
+        ShareableElement.sharedElementReturnTransitionId = 0
     }
 }

@@ -18,13 +18,15 @@ import com.wanwan.lifecycle_callback.protocol.TAG
 /**
  * Created by yvan.botella on 12/10/2017.
  */
-interface Bindable<out T: ViewDataBinding>: TAG {
+interface Bindable<T: ViewDataBinding>: TAG {
 
     val layoutId: Int
     val binding: T?
         get() = _binding as? T
 
     var _binding: ViewDataBinding?
+
+    fun onBindDataContext(): Unit?
 
     companion object : ActivityLifecycleRegister, FragmentLifecycleRegister {
 
@@ -50,7 +52,9 @@ interface Bindable<out T: ViewDataBinding>: TAG {
                             activity._binding = DataBindingUtil.setContentView(activity, activity.layoutId)
                         }
                     }
-                } else {
+                    if (activity.binding != null) {
+                        activity.onBindDataContext()
+                    }
                 }
             }
         }
@@ -66,7 +70,9 @@ interface Bindable<out T: ViewDataBinding>: TAG {
                     } else {
                         fragment._binding = DataBindingUtil.inflate(inflater, fragment.layoutId, container, false)
                     }
-                } else {
+                    if (fragment.binding != null) {
+                        fragment.onBindDataContext()
+                    }
                 }
                 return backResult
             }

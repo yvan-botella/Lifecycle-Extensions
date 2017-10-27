@@ -13,6 +13,10 @@ import com.wanwan.lifecycle_callback.ActivityLifecycleRegister
 import com.wanwan.lifecycle_callback.callback.ActivityLifecycleCallbacks
 import com.wanwan.lifecycle_callback.protocol.ActivityLifecycleImpl
 import com.wanwan.lifecycle_extensions.kotlin.navigable.NavigableActivity
+import android.support.v4.app.ActivityCompat.startPostponedEnterTransition
+import android.view.ViewTreeObserver
+
+
 
 /**
  * Created by yvan.botella on 22/10/2017.
@@ -23,6 +27,9 @@ interface ShareableElement {
         get() = ArrayList()
     val sharedElementsPair: ArrayList<Pair<View?, String>>
         get() = ArrayList()
+
+    val hasAsyncSharedElement: Boolean
+        get() = false
 
 //    val enterTransitionId: Int
 //        get() = ShareableElement.Companion.enterTransitionId
@@ -35,10 +42,7 @@ interface ShareableElement {
         get() = ShareableElement.Companion.sharedElementReturnTransitionId
 
     companion object {
-        var sharedElementEnterTransitionId = R.transition.default_shared_element_transition
-        var sharedElementReturnTransitionId = R.transition.default_shared_element_transition
-
-//        var exitTransitionId = R.transition.default_shared_element_transition
-//        var enterTransitionId = R.transition.default_shared_element_transition
+        var sharedElementEnterTransitionId: Int? = R.transition.default_shared_element_transition
+        var sharedElementReturnTransitionId: Int? = R.transition.default_shared_element_transition
     }
 }

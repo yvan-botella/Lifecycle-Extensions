@@ -24,6 +24,9 @@ class MainActivity : ActivityNavigable<MainactivityBinding>(), AutoLayout {
     //endregion Static
 
 
+    override fun onBindDataContext() {
+    }
+
     override fun registerLifecycleCallback() {
         AutoLayout.register(this)
         super.registerLifecycleCallback()

@@ -5,9 +5,11 @@ import android.app.Fragment
 import android.app.FragmentManager
 import android.app.FragmentTransaction
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
+import android.transition.Transition
 import android.transition.TransitionInflater
 import com.wanwan.lifecycle_callback.ActivityLifecycleRegister
 import com.wanwan.lifecycle_callback.callback.ActivityLifecycleCallbacks
@@ -29,15 +31,10 @@ interface NavigableActivity: TAG, ShareableElement {
 
     val currentFragment: Any?
         get() {
-            if (this is FragmentActivity) {
-                val fragment = supportFragmentManager.findFragmentById(_navigableContainerId)
-                return fragment
-            }
-            else if (this is Activity) {
-                val fragment = fragmentManager.findFragmentById(_navigableContainerId)
-                return fragment
-            } else {
-                return null
+            when (this) {
+                is FragmentActivity -> return supportFragmentManager.findFragmentById(_navigableContainerId)
+                is Activity -> return fragmentManager.findFragmentById(_navigableContainerId)
+                else -> return null
             }
         }
 
@@ -59,15 +56,17 @@ interface NavigableActivity: TAG, ShareableElement {
             }
 
             override fun onBackPressed(activity: Activity, handled: Boolean?): Boolean {
-                if (activity is FragmentActivity && activity.supportFragmentManager.backStackEntryCount <= 1) {
-                    activity.supportFinishAfterTransition()
+                when (activity) {
+                    is FragmentActivity -> if (activity.supportFragmentManager.backStackEntryCount <= 1) {
+                        activity.supportFinishAfterTransition()
+                        return true
+                    }
+                    else -> if (activity.fragmentManager.backStackEntryCount <= 1) {
+                        activity.finish()
+                        return true
+                    }
                 }
-                else if (activity.fragmentManager.backStackEntryCount <= 1){
-                    activity.finish()
-                } else {
-                    return false
-                }
-                return true
+                return false
             }
 
             fun onHandleNavigableIntent(activity: Activity, intent: Intent?) {
@@ -77,6 +76,9 @@ interface NavigableActivity: TAG, ShareableElement {
                         val fragment = fragmentClass.newInstance()
 
                         if (fragment is Fragment || fragment is android.support.v4.app.Fragment) {
+                            if (fragment is ShareableElement && fragment.hasAsyncSharedElement) {
+                                activity.postponeEnterTransition()
+                            }
                             activity.onNavigate(intent, fragment)
                         }
                     }
@@ -86,67 +88,71 @@ interface NavigableActivity: TAG, ShareableElement {
     }
 
     fun onNavigate(intent: Intent, fragment: Any) {
-        if (this is Activity && fragment is Fragment) {
-            fragment.retainInstance = true
-            if (intent.hasExtra(Navigable.EXTRA_CLEAR_BACKSTACK)) {
-                fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-            }
-
-            var transaction = fragmentManager.beginTransaction()
-            transaction = onNavigateTransaction(fragment, transaction) as FragmentTransaction
-            transaction.commit()
+        when (this) {
+            is FragmentActivity -> handleOnNavigateSupport(intent, this, fragment as? android.support.v4.app.Fragment)
+            is Activity -> handleOnNavigate(intent, this, fragment as? Fragment)
         }
-        else if (this is FragmentActivity && fragment is android.support.v4.app.Fragment) {
-            fragment.retainInstance = true
-            if (intent.hasExtra(Navigable.EXTRA_CLEAR_BACKSTACK)) {
-                supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                val exitFragment = currentFragment
-                val enterFragment = fragment
-
-                if (exitFragment is Fragment) {
-                    val sharedElementEnterTransition = TransitionInflater.from(this)
-                            .inflateTransition((exitFragment as? ShareableElement)?.sharedElementEnterTransitionId
-                                    ?: sharedElementEnterTransitionId ?: 0)
-                    exitFragment.sharedElementEnterTransition = sharedElementEnterTransition
-                    exitFragment.enterTransition = sharedElementEnterTransition
-
-                    val sharedElementReturnTransition = TransitionInflater.from(this)
-                            .inflateTransition((exitFragment as? ShareableElement)?.sharedElementReturnTransitionId
-                                    ?: sharedElementReturnTransitionId ?: 0)
-                    exitFragment.sharedElementReturnTransition = sharedElementReturnTransition
-                    exitFragment.exitTransition = sharedElementEnterTransition
-                }
-
-                val sharedElementEnterTransition = TransitionInflater.from(this)
-                        .inflateTransition((enterFragment as? ShareableElement)?.sharedElementEnterTransitionId
-                                ?: sharedElementEnterTransitionId ?: 0)
-                enterFragment.sharedElementEnterTransition = sharedElementEnterTransition
-                enterFragment.enterTransition = sharedElementEnterTransition
-
-                val sharedElementReturnTransition = TransitionInflater.from(this)
-                        .inflateTransition((enterFragment as? ShareableElement)?.sharedElementReturnTransitionId
-                                ?: sharedElementReturnTransitionId ?: 0)
-                enterFragment.sharedElementReturnTransition = sharedElementReturnTransition
-                enterFragment.exitTransition = sharedElementEnterTransition
-            }
-
-            var transaction = supportFragmentManager.beginTransaction()
-
-            transaction = onNavigateTransaction(fragment, transaction) as android.support.v4.app.FragmentTransaction
-            SharedElementTransaction.fromIntent(intent)?.setupTransaction(transaction)
-
-            transaction.commit()
-        } else {
-
-        }
-
-
     }
 
-    fun onNavigateTransaction(fragment: Any, fragmentTransaction: Any): Any {
+    private fun handleOnNavigate(intent: Intent, activity: Activity, fragment: Fragment?) {
+        if (intent.hasExtra(Navigable.EXTRA_CLEAR_BACKSTACK)) {
+            activity.fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        }
+
+        var transaction = activity.fragmentManager.beginTransaction()
+        transaction = onNavigateTransaction(fragment, transaction) as FragmentTransaction
+
+        transaction.commit()
+    }
+
+    private fun handleOnNavigateSupport(intent: Intent, activity: FragmentActivity, fragment: android.support.v4.app.Fragment?) {
+        if (intent.hasExtra(Navigable.EXTRA_CLEAR_BACKSTACK)) {
+            activity.supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        }
+        if (currentFragment is android.support.v4.app.Fragment) {
+            setFragmentSharedTransition(currentFragment as android.support.v4.app.Fragment, fragment)
+        }
+
+        var transaction = activity.supportFragmentManager.beginTransaction()
+
+        transaction = onNavigateTransaction(fragment, transaction) as android.support.v4.app.FragmentTransaction
+        SharedElementTransaction.fromIntent(intent)?.setupTransaction(transaction)
+
+        transaction.commit()
+    }
+
+
+    fun setFragmentSharedTransition(enterFragment: android.support.v4.app.Fragment?, exitFragment: android.support.v4.app.Fragment?) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val exitFragmentEnterTransition = inflateTransition((enterFragment as? ShareableElement)?.sharedElementEnterTransitionId, sharedElementEnterTransitionId)
+
+            exitFragment?.sharedElementEnterTransition = exitFragmentEnterTransition
+            exitFragment?.enterTransition = exitFragmentEnterTransition
+
+            val exitFragmentReturnTransition = inflateTransition((enterFragment as? ShareableElement)?.sharedElementReturnTransitionId, sharedElementReturnTransitionId)
+            exitFragment?.sharedElementReturnTransition = exitFragmentReturnTransition
+            exitFragment?.exitTransition = exitFragmentReturnTransition
+
+            val enterFragmentEnterTransition = inflateTransition((enterFragment as? ShareableElement)?.sharedElementEnterTransitionId, sharedElementEnterTransitionId)
+            enterFragment?.sharedElementEnterTransition = enterFragmentEnterTransition
+            enterFragment?.enterTransition = enterFragmentEnterTransition
+
+            val enterFragmentReturnTransition = inflateTransition((enterFragment as? ShareableElement)?.sharedElementReturnTransitionId, sharedElementReturnTransitionId)
+            enterFragment?.sharedElementReturnTransition = enterFragmentReturnTransition
+            enterFragment?.exitTransition = enterFragmentReturnTransition
+        }
+    }
+
+    fun inflateTransition(fragmentTransitionId: Int?, activityTransitionId: Int?): Transition {
+        try {
+            return TransitionInflater.from(this as Activity)
+                    .inflateTransition(fragmentTransitionId ?: sharedElementReturnTransitionId ?: 0)
+        } catch (ex: Resources.NotFoundException) {
+            return TransitionInflater.from(this as Activity).inflateTransition(android.R.transition.no_transition)
+        }
+    }
+
+    fun onNavigateTransaction(fragment: Any?, fragmentTransaction: Any): Any {
         if (fragment is Fragment && fragmentTransaction is FragmentTransaction) {
             return fragmentTransaction.replace(_navigableContainerId, fragment).addToBackStack(null)
         } else if (fragment is android.support.v4.app.Fragment && fragmentTransaction is android.support.v4.app.FragmentTransaction) {

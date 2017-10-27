@@ -46,6 +46,8 @@ interface Navigable: TAG {
         val previousActivity = currentActivity
 
         if (extras.containsKey(EXTRA_CLEAR_BACKSTACK)) {
+            previousActivity?.setResult(Activity.RESULT_OK)
+
             if (previousActivity is FragmentActivity) {
                 previousActivity.supportFinishAfterTransition()
             } else {

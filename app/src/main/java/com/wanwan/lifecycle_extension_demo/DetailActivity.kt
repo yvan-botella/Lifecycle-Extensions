@@ -4,7 +4,6 @@ import android.graphics.Color
 import android.os.Bundle
 import com.wanwan.autolayout.AutoLayout
 import com.wanwan.lifecycle_extension_demo.databinding.DetailactivityBinding
-import com.wanwan.navigable.Navigable
 
 /**
  * Created by yvan.botella on 23/10/2017.
@@ -18,6 +17,10 @@ class DetailActivity : ActivityNavigable<DetailactivityBinding>(), AutoLayout {
     override fun registerLifecycleCallback() {
         AutoLayout.register(this)
         super.registerLifecycleCallback()
+    }
+
+    override fun onBindDataContext() {
+
     }
 
     override fun onResume() {
