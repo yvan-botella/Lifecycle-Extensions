@@ -8,6 +8,7 @@ import com.wanwan.navigable.Navigable
 /**
  * Created by yvan.botella on 23/10/2017.
  */
+
 class FirstFragment : BaseFragment<FirstfragmentBinding>() {
 
     //region ShareableElement
@@ -17,6 +18,9 @@ class FirstFragment : BaseFragment<FirstfragmentBinding>() {
 
 
     //region Fragment Lifecycle
+    /**
+     * Called when View has been Bind, and ready to be used for setting up variables
+     */
     override fun onBindDataContext() {
         binding?.context = this
     }
@@ -28,10 +32,17 @@ class FirstFragment : BaseFragment<FirstfragmentBinding>() {
         override val activityAffinity = MainActivity::class.java
         override val fragmentClass = FirstFragment::class.java
 
+        /**
+         * Navigate by pushing content
+         */
         @JvmStatic
         fun navigateTo() {
             super.navigate(false, null)
         }
+
+        /**
+         * Navigate and clear backstack
+         */
         @JvmStatic
         fun navigateFrom() {
             super.navigate(true, null)

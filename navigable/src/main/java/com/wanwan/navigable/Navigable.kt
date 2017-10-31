@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.FragmentActivity
 import com.wanwan.lifecycle_callback.protocol.TAG
 import com.wanwan.lifecycle_extensions.kotlin.navigable.NavigableActivity
@@ -29,6 +30,7 @@ interface Navigable: TAG {
         finishActivityIfNeeded(extras)
     }
 
+    // /!\ with SharedElement Tranistion: may throw NullPointerException with android internal setPausedForTransition
     private fun startActivity(intent: Intent, extras: Bundle, options: Bundle?) {
         val previousActivity = currentActivityRef
 

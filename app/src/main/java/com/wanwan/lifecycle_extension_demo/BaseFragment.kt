@@ -24,6 +24,9 @@ abstract class BaseFragment<T: ViewDataBinding> : LifecycleFragmentSupport(), Au
     //endregion Bindable
 
     //region AutoLayout / Bindable
+    /**
+     * layoutId used by AutoLayout / Bindable
+     */
     override val layoutId: Int
         get() = super.layoutId
     //endregion AutoLayout
