@@ -38,7 +38,7 @@ task clean(type: Delete) {
  *  http://tools.android.com/tech-docs/new-build-system/user-guide
  */
 ext.formatVariantOutput = { parent, defaultConfig, variant ->
-    variant.outputs.each { output ->
-        //output.outputFile = new File(output.outputFile.parent, "${parent.name}-${defaultConfig.versionName}.${defaultConfig.versionCode}-${variant.name}.aar")
+    variant.outputs.all { output ->
+        output.outputFileName = new File(output.outputFile.parent, "${parent.name}-${defaultConfig.versionName}.${defaultConfig.versionCode}-${variant.name}.aar")
     }
 }
