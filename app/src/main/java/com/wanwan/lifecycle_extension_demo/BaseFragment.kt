@@ -1,17 +1,9 @@
 package com.wanwan.lifecycle_extension_demo
 
 import android.databinding.ViewDataBinding
-import android.os.Build
-import android.os.Bundle
-import android.transition.TransitionInflater
-import android.view.View
 import com.wanwan.autolayout.AutoLayout
 import com.wanwan.bindable.Bindable
-import com.wanwan.lifecycle_callback.LifecycleFragment
 import com.wanwan.lifecycle_callback.kotlin.LifecycleFragmentSupport
-import com.wanwan.lifecycle_extension_demo.databinding.FirstfragmentBinding
-import com.wanwan.navigable.Navigable
-import com.wanwan.navigable.R
 import com.wanwan.navigable.ShareableElement
 
 /**

@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'org.jetbrains.dokka-android'
-apply plugin: 'git-repo'
 
 android {
     compileSdkVersion compile_sdk_version
@@ -39,6 +38,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+
+    implementation "com.github.yvan-botella:Lifecycle-Callback:$lifecycle_callback_version"
 
     compile project(':navigable')
     compile project(':bindable')

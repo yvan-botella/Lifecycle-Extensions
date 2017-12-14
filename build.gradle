@@ -19,7 +19,6 @@ buildscript {
         classpath "com.android.tools.build:gradle:$gradle_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.15"
-        classpath "com.layer:gradle-git-repo-plugin:2.0.2"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -43,6 +42,8 @@ allprojects {
  */
 ext.formatVariantOutput = { parent, defaultConfig, variant ->
     variant.outputs.all { output ->
-        output.outputFileName = new File(output.outputFile.parent, "${parent.name}-${defaultConfig.versionName}.${defaultConfig.versionCode}-${variant.name}.aar")
+        output.outputFileName = new File("${project.hasProperty("applicationName") ? applicationName : parent.name}-${defaultConfig.versionName}_${defaultConfig.versionCode}-${variant.name}.aar")
+//       output.outputFileName = "${parent.name}-${defaultConfig.versionName}_${variant.getVersionCode()}-${variant.name}.aar"
+//        output.outputFileName = new File(output.outputFile.parent, "${parent.name}-${defaultConfig.versionName}.${defaultConfig.versionCode}-${variant.name}.aar")
     }
 }

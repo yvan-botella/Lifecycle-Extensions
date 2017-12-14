@@ -15,6 +15,7 @@ import com.wanwan.lifecycle_callback.callback.ActivityLifecycleCallbacks
 import com.wanwan.lifecycle_callback.callback.FragmentLifecycleCallbacks
 import com.wanwan.lifecycle_callback.protocol.ActivityLifecycleImpl
 import com.wanwan.lifecycle_callback.protocol.FragmentLifecycleImpl
+import java.util.regex.Pattern
 
 /**
  * Created by yvan.botella on 12/10/2017.
@@ -24,8 +25,14 @@ interface AutoLayout {
     val layoutId: Int
         get() = resolveLayout()
 
+    private fun getLayoutName(): String {
+        return javaClass.simpleName
+                .swapLastWord()
+                .camelToUnderscore()
+    }
+
     private fun resolveLayout(): Int {
-        val layoutName = this::class.java.simpleName.toLowerCase()
+        val layoutName = getLayoutName()
         var ctx: Context? = null
 
         if (this is Activity) {
@@ -39,6 +46,33 @@ interface AutoLayout {
         }
 
         return ctx?.resources!!.getIdentifier(layoutName, "layout", ctx.packageName)
+    }
+
+    private fun String.swapLastWord(): String {
+        val regex = "([a-z])([A-Z]+)"
+
+        var pattern = Pattern.compile(regex)
+        var matcher = pattern.matcher(this)
+        var newString = this
+
+        if(matcher.find()) {
+            val lastWord = matcher.group(matcher.groupCount())
+            newString = this.removeRange(this.length - lastWord.length, this.length)
+            newString = lastWord + newString
+        }
+
+        return newString
+    }
+
+    private fun String.camelToUnderscore(): String {
+        val regex = "([a-z])([A-Z]+)".toRegex()
+        val replacement = "$1_$2";
+
+        var layoutName = this
+                .replace(regex, replacement)
+                .toLowerCase()
+
+        return layoutName
     }
 
     companion object: ActivityLifecycleRegister, FragmentLifecycleRegister {
