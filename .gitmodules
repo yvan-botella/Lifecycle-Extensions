@@ -1,4 +1,0 @@
-[submodule "Lifecycle-Callback"]
-	path = Lifecycle-Callback
-	branch = dev
-	url = git@github.com:yvan-botella/Lifecycle-Callback.git

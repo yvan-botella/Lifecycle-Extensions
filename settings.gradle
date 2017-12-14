@@ -1,2 +1,2 @@
-include ':app', ':lifecycle-callback', ':navigable', ':autolayout', ':bindable'
-project(':lifecycle-callback').projectDir = new File('Lifecycle-Callback/library')
+include ':app', /*':lifecycle-callback',*/ ':navigable', ':autolayout', ':bindable'
+//project(':lifecycle-callback').projectDir = new File('Lifecycle-Callback/library')

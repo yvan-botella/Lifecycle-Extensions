@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.dokka-android'
+apply plugin: 'git-repo'
 
 android {
     compileSdkVersion compile_sdk_version
@@ -21,11 +22,17 @@ android {
     }
 
     buildTypes {
+        android.libraryVariants.all { variant -> formatVariantOutput(parent, defaultConfig, variant) }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+}
+
+repositories {
+    //github("yvan-botella", "Lifecycle-Callback", "master", "releases")
+    git("https://github.com/yvan-botella/Lifecycle-Callback.git", "Lifecycle0Callback", "master", "releases")
 }
 
 dependencies {
@@ -40,7 +47,9 @@ dependencies {
     implementation 'com.android.support:support-v4:26.+'
     //endregion Android Support
 
-    compile project(':lifecycle-callback')
+    implementation "com.github.yvan-botella:Lifecycle-Callback:$lifecycle_callback_version"
+    //compile project(':lifecycle-callback')
+    //compile 'com.wanwan:lifecycle-callback:1.0'
 
     //region Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
